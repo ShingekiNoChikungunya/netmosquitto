@@ -10,44 +10,51 @@ else:
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host,port))
-s.settimeout(1)				#Sets the timeout time
+s.settimeout(5)				#Sets the timeout time
 
-def receive_data(s,data=''):
-	#This functions recieves data in 2048bytes chunks until '\n' is received
+def receive_data(s):
+	#This functions recieves data in 4 bytes chunks until '\n' or '\r' is received
+	data=''
 	try:
 		#Prevents exception from timeouts
-		data+=s.recv(2048).decode()
-	except:
+		data+=s.recv(1).decode()
+	except socket.timeout:
 		return data
-	while data[-1]!='\n' or data[-1]!='\r':
+
+	while data[-1]!='\n':
 		try:
 			#Prevents exception from timeouts
-			data+=s.recv(2048).decode()
-		except:
+			data+=s.recv(1).decode()
+		except socket.timeout:
 			break
 
+	print(data,end='')
 	return data
 
 def parse_data(raw_data):
+	parsed_data=None
 	#This function parses the data received
-	parsed_data='\n'
 	'''
-		The parsing Logic goes here
+		The parsing Logic goes here, make shure to return parsed data
 	'''
 	return parsed_data
 
-def send_data(s,parsed_data):
+def send_data(s,response):
 	#This function sends the response to the server
-	s.send(bytes(parsed_data,'utf-8'))
+	if response:
+		s.send(bytes(response,'utf-8'))
 
 while True:
 	raw_data = receive_data(s)
 	parsed_data = parse_data(raw_data)
+	'''
+		The logic of the Challange after the parsing goes here
+	'''
 	try:
 		send_data(s,parsed_data)
 	except ConnectionResetError:
 		print("Connection closed by server")
 		break
-	except:
-		print("An error has occured")
+	except Exception as error:
+		print(f"An error has occured '{error}'")
 		break
