@@ -28,11 +28,17 @@ def parse_data(raw_data):
 	'''
 	return parsed_data
 
-def send_data(parsed_data):
+def send_data(s,parsed_data):
 	#This function sends the response to the server
-	s.send(parsed_data)
+	s.send(bytes(parsed_data,'utf-8'))
 
 while True:
 	raw_data = receive_data(s)
-	parsed_data = parsed_data(raw_data)
-	send_data(parsed_data)
+	parsed_data = parse_data(raw_data)
+	try:
+		send_data(s,parsed_data)
+	except ConnectionResetError:
+		print("Connection closed by server")
+		break
+	except:
+		print("An error has occured")
