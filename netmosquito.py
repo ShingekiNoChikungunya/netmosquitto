@@ -1,22 +1,38 @@
-import socket
+import socket, sys
 
-host='127.0.0.1' #Host IP goes here
-port=7000		 #Port Goes Here
+try:
+	host=sys.argv[1] 		#Host IP goes here
+	port=int(sys.argv[2]) 	#Port Goes Here
+
+except:
+	print("Please inform host and port uppon executing")
+	exit()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(host,port)
+s.connect((host,port))
 
-def recieve_data(s):
-	data = s.recv(2048)
+def receive_data(s):
+	#This functions recieves data in 2048bytes chunks until '\n' is received
+	data=''
+	while True:
+		data+=s.recv(2048).decode()
+		if data[-1]=='\n':
+			break
 	return data
 
 def parse_data(raw_data):
-	return response
+	#This function parses the data received
+	parsed_data='\n'
+	'''
+		The parsing Logic goes here
+	'''
+	return parsed_data
 
 def send_data(parsed_data):
+	#This function sends the response to the server
 	s.send(parsed_data)
 
 while True:
-	raw_data = recieve_data(s)
+	raw_data = receive_data(s)
 	parsed_data = parsed_data(raw_data)
 	send_data(parsed_data)
