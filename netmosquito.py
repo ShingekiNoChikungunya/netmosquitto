@@ -1,23 +1,31 @@
 import socket, sys
 
-try:
+if len(sys.argv)==3:
 	host=sys.argv[1] 		#Host IP goes here
 	port=int(sys.argv[2]) 	#Port Goes Here
 
-except:
-	print("Please inform host and port uppon executing")
+else:
+	print(('Error while running, please execute proggram as following:\npython netmosquito.py <host> <port>'))
 	exit()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host,port))
+s.settimeout(1)				#Sets the timeout time
 
-def receive_data(s):
+def receive_data(s,data=''):
 	#This functions recieves data in 2048bytes chunks until '\n' is received
-	data=''
-	while True:
+	try:
+		#Prevents exception from timeouts
 		data+=s.recv(2048).decode()
-		if data[-1]=='\n':
+	except:
+		return data
+	while data[-1]!='\n' or data[-1]!='\r':
+		try:
+			#Prevents exception from timeouts
+			data+=s.recv(2048).decode()
+		except:
 			break
+
 	return data
 
 def parse_data(raw_data):
@@ -42,3 +50,4 @@ while True:
 		break
 	except:
 		print("An error has occured")
+		break
